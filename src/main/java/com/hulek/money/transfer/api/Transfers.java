@@ -8,7 +8,7 @@ import static spark.Spark.*;
 public class Transfers {
     public void api() {
         path("/transfers", () -> {
-            post("/", (rq, rs) -> {
+            post("", (rq, rs) -> {
                 rs.status(SC_CREATED);
                 rs.header("Location", "/transfers/" + UUID.randomUUID());
                 return "";
