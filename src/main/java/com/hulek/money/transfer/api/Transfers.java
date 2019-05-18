@@ -1,19 +1,18 @@
 package com.hulek.money.transfer.api;
 
-import java.util.UUID;
-
-import static javax.servlet.http.HttpServletResponse.SC_CREATED;
-import static spark.Spark.*;
+import spark.Route;
+import spark.Spark;
 
 public class Transfers {
-    public void api() {
-        path("/transfers", () -> {
-            post("", (rq, rs) -> {
-                rs.status(SC_CREATED);
-                rs.header("Location", "/transfers/" + UUID.randomUUID());
-                return "";
-            });
-        });
+    private final Route postTransfersRoute;
 
+    public Transfers(Route postTransfersRoute) {
+        this.postTransfersRoute = postTransfersRoute;
+    }
+
+    public void api() {
+        Spark.path("/transfers", () -> {
+            Spark.post("", postTransfersRoute);
+        });
     }
 }
