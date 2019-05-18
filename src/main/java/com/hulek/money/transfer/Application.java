@@ -1,7 +1,19 @@
 package com.hulek.money.transfer;
-import static spark.Spark.*;
+
+import com.hulek.money.transfer.api.Transfers;
+
 public class Application {
-    public static void main(String... args){
-        post("/transfers",(rq,rs)->"");
+    private final Transfers transfers;
+
+    public Application(Transfers transfersAPI) {
+        transfers = transfersAPI;
+    }
+
+    public static void main(String... args) {
+        new Configuration().application().start();
+    }
+
+    private void start() {
+        transfers.api();
     }
 }
