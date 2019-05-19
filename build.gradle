@@ -16,6 +16,8 @@ test {
 dependencies {
     compile "com.sparkjava:spark-core:2.8.0"
     compile "com.google.code.gson:gson:2.8.5"
+    compile "io.reactivex:rxjava-reactive-streams:1.2.1"
+    compile "org.reactivestreams:reactive-streams-flow-adapters:1.0.2"
     testCompile "nl.jqno.equalsverifier:equalsverifier:3.1.9"
     testCompile "org.mockito:mockito-all:2.0.2-beta"
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
