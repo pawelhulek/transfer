@@ -2,13 +2,15 @@ package com.hulek.money.transfer;
 
 import com.google.gson.Gson;
 import com.hulek.money.transfer.actions.OnNextTransfer;
-import com.hulek.money.transfer.api.GetTransfersRoute;
-import com.hulek.money.transfer.api.PostTransfersRoute;
-import com.hulek.money.transfer.api.Transfers;
+import com.hulek.money.transfer.api.AccountsApi;
+import com.hulek.money.transfer.api.GetRoute;
+import com.hulek.money.transfer.api.PostRoute;
+import com.hulek.money.transfer.api.TransfersApi;
+import com.hulek.money.transfer.dto.Account;
 import com.hulek.money.transfer.dto.Transfer;
 import com.hulek.money.transfer.dto.Unique;
-import com.hulek.money.transfer.repository.TransfersCacheRepository;
-import com.hulek.money.transfer.repository.TransfersRepository;
+import com.hulek.money.transfer.repository.CacheRepository;
+import com.hulek.money.transfer.repository.Repository;
 import org.reactivestreams.FlowAdapters;
 import rx.RxReactiveStreams;
 import rx.Subscriber;
@@ -23,26 +25,52 @@ import java.util.concurrent.SubmissionPublisher;
 
 public class Configuration {
 
-    private TransfersRepository transfersRepository = transfersRepository();
+    private Repository<Transfer> transfersRepository = transfersRepository();
+    private Repository<Account> accountsRepository = accountsRepository();
 
-    public Application application() {
-        return new Application(transfersAPI());
+    private Repository<Account> accountsRepository() {
+        return new CacheRepository<>(accountsCache(), accountsPublisher());
     }
 
-    private Transfers transfersAPI() {
-        return new Transfers(postTransfersRoute(), getTransfersRoute());
+
+    private SubmissionPublisher<Unique<Account>> accountsPublisher() {
+        var publisher = new SubmissionPublisher<Unique<Account>>();
+        publisher.subscribe(accountsSubscriber());
+        return publisher;
+    }
+
+    private Flow.Subscriber<Unique<Account>> accountsSubscriber() {
+        Subscriber<Unique<Account>> rxSubscriber = Subscribers.empty();
+        return FlowAdapters.toFlowSubscriber(RxReactiveStreams.toSubscriber(rxSubscriber));
+    }
+
+
+    public Application application() {
+        return new Application(transfersAPI(), accountsApi());
+    }
+
+    private AccountsApi accountsApi() {
+        return new AccountsApi(accountsGetRoute());
+    }
+
+    private Route accountsGetRoute() {
+        return new GetRoute<Account>(gson(), accountsRepository);
+    }
+
+    private TransfersApi transfersAPI() {
+        return new TransfersApi(postTransfersRoute(), getTransfersRoute());
     }
 
     private Route getTransfersRoute() {
-        return new GetTransfersRoute(gson(), transfersRepository);
+        return new GetRoute<>(gson(), transfersRepository);
     }
 
     private Route postTransfersRoute() {
-        return new PostTransfersRoute(gson(), transfersRepository);
+        return new PostRoute<>(gson(), transfersRepository, Transfer.class, "transfers");
     }
 
-    private TransfersRepository transfersRepository() {
-        return new TransfersCacheRepository(transfersCache(), transfersPublisher());
+    private CacheRepository<Transfer> transfersRepository() {
+        return new CacheRepository<>(transfersCache(), transfersPublisher());
     }
 
     private SubmissionPublisher<Unique<Transfer>> transfersPublisher() {
@@ -64,7 +92,15 @@ public class Configuration {
         return new ConcurrentHashMap<>();
     }
 
+    private Map<String, Account> accountsCache() {
+        return new ConcurrentHashMap<>();
+    }
+
     private Gson gson() {
         return new Gson();
+    }
+
+    public void initializeData() {
+        new Preloader(accountsRepository).preLoadData();
     }
 }

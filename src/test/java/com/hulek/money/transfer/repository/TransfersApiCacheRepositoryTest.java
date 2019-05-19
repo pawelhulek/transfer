@@ -15,8 +15,8 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-class TransfersCacheRepositoryTest {
-    TransfersCacheRepository transfersCacheRepository;
+class TransfersApiCacheRepositoryTest {
+    CacheRepository cacheRepository;
 
     Map<String, Transfer> cache;
     private SubmissionPublisher<Unique<Transfer>> publisher;
@@ -25,18 +25,18 @@ class TransfersCacheRepositoryTest {
     public void setUp() {
         cache = new HashMap<>();
         publisher = mock(SubmissionPublisher.class);
-        transfersCacheRepository = new TransfersCacheRepository(cache, publisher);
+        cacheRepository = new CacheRepository(cache, publisher);
     }
 
     @Test
     void save() {
-        transfersCacheRepository.save(new Unique<>("asd", transfer()));
+        cacheRepository.save(new Unique<>("asd", transfer()));
         assertEquals(transfer(), cache.get("asd"));
     }
 
     @Test
     void publish() {
-        transfersCacheRepository.save(new Unique<>("asd", transfer()));
+        cacheRepository.save(new Unique<>("asd", transfer()));
         verify(publisher).submit(eq(new Unique<>("asd", transfer())));
     }
 

@@ -3,11 +3,11 @@ package com.hulek.money.transfer.api;
 import spark.Route;
 import spark.Spark;
 
-public class Transfers {
+public class TransfersApi {
     private final Route postTransfersRoute;
     private final Route getTransfersRoute;
 
-    public Transfers(Route postTransfersRoute, Route getTransfersRoute) {
+    public TransfersApi(Route postTransfersRoute, Route getTransfersRoute) {
         this.postTransfersRoute = postTransfersRoute;
         this.getTransfersRoute = getTransfersRoute;
     }

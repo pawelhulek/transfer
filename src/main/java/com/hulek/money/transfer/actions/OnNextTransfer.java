@@ -2,13 +2,13 @@ package com.hulek.money.transfer.actions;
 
 import com.hulek.money.transfer.dto.Transfer;
 import com.hulek.money.transfer.dto.Unique;
-import com.hulek.money.transfer.repository.TransfersRepository;
+import com.hulek.money.transfer.repository.Repository;
 import rx.functions.Action1;
 
 public class OnNextTransfer implements Action1<Unique<Transfer>> {
-    private final TransfersRepository repository;
+    private final Repository<Transfer> repository;
 
-    public OnNextTransfer(TransfersRepository repository) {
+    public OnNextTransfer(Repository<Transfer> repository) {
         this.repository = repository;
     }
 

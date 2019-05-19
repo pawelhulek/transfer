@@ -15,9 +15,9 @@ import java.math.BigDecimal;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-class PostTransfersRouteTest {
+class PostTransfersApiRouteTest {
     public static final String SOME_TRANSFER_JSON_REQUEST = "{\"from\":\"2ds\",\"to\":\"avs\",\"amount\":2.21,\"currency\":\"USD\",\"transactionStatus\":\"STAGING\"}";
-    private PostTransfersRoute postTransfersRoute;
+    private PostRoute postRoute;
     private Request requestMock;
     private Response responseMock;
     private Gson gson;
@@ -31,26 +31,26 @@ class PostTransfersRouteTest {
         responseMock = mock(Response.class);
         gson = new Gson();
         repository = mock(TransfersRepository.class);
-        postTransfersRoute = new PostTransfersRoute(gson, repository);
+        postRoute = new PostRoute(gson, repository, Transfer.class, "transfers");
 
     }
 
     @Test
     void transferInResponseBodyIsObligatory() {
         when(requestMock.body()).thenReturn("");
-        assertThrows(IllegalArgumentException.class, () -> postTransfersRoute.handle(requestMock, responseMock));
+        assertThrows(IllegalArgumentException.class, () -> postRoute.handle(requestMock, responseMock));
     }
 
     @Test
     void transferInTheBodyIsAccepted() {
         when(requestMock.body()).thenReturn(SOME_TRANSFER_JSON_REQUEST);
-        assertDoesNotThrow(() -> postTransfersRoute.handle(requestMock, responseMock));
+        assertDoesNotThrow(() -> postRoute.handle(requestMock, responseMock));
     }
 
     @Test
     void persistTransfer() {
         when(requestMock.body()).thenReturn(SOME_TRANSFER_JSON_REQUEST);
-        postTransfersRoute.handle(requestMock, responseMock);
+        postRoute.handle(requestMock, responseMock);
         verify(repository).save(captor.capture());
         assertEquals(new Transfer("2ds", "avs", new BigDecimal("2.21"), "USD"), captor.getValue().getValue());
     }
@@ -58,7 +58,7 @@ class PostTransfersRouteTest {
     @Test
     void persistedIdIsTheSameAsTheOneInHeader() {
         when(requestMock.body()).thenReturn(SOME_TRANSFER_JSON_REQUEST);
-        postTransfersRoute.handle(requestMock, responseMock);
+        postRoute.handle(requestMock, responseMock);
         verify(repository).save(captor.capture());
         verify(responseMock).header(any(), headerCaptor.capture());
 
