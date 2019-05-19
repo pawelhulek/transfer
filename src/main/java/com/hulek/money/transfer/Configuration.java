@@ -1,7 +1,7 @@
 package com.hulek.money.transfer;
 
 import com.google.gson.Gson;
-import com.hulek.money.transfer.actions.OnNextCompletedTransfer;
+import com.hulek.money.transfer.actions.OnNextStagingTransfer;
 import com.hulek.money.transfer.actions.OnNextTransfer;
 import com.hulek.money.transfer.api.AccountsApi;
 import com.hulek.money.transfer.api.GetRoute;
@@ -74,17 +74,17 @@ public class Configuration {
     private SubmissionPublisher<Unique<Transfer>> transfersPublisher(Repository<Account> accountRepository, Repository<Transfer> transfersRepository) {
         var publisher = new SubmissionPublisher<Unique<Transfer>>();
         publisher.subscribe(transferSubscriber(transfersRepository));
-        publisher.subscribe(compltedTransferSubscriber(accountRepository));
+        publisher.subscribe(compltedTransferSubscriber(accountRepository, transfersRepository));
         return publisher;
     }
 
-    private Flow.Subscriber<Unique<Transfer>> compltedTransferSubscriber(Repository<Account> accountRepository) {
-        Subscriber<Unique<Transfer>> rxSubscriber = Subscribers.create(actionCompletedTransfer(accountRepository));
+    private Flow.Subscriber<Unique<Transfer>> compltedTransferSubscriber(Repository<Account> accountRepository, Repository<Transfer> transferRepository) {
+        Subscriber<Unique<Transfer>> rxSubscriber = Subscribers.create(actionCompletedTransfer(accountRepository, transferRepository));
         return FlowAdapters.toFlowSubscriber(RxReactiveStreams.toSubscriber(rxSubscriber));
     }
 
-    private Action1<Unique<Transfer>> actionCompletedTransfer(Repository<Account> accountRepository) {
-        return new OnNextCompletedTransfer(accountRepository);
+    private Action1<Unique<Transfer>> actionCompletedTransfer(Repository<Account> accountRepository, Repository<Transfer> transferRepository) {
+        return new OnNextStagingTransfer(accountRepository, transferRepository);
     }
 
     private Flow.Subscriber<Unique<Transfer>> transferSubscriber(Repository<Transfer> transfersRepository) {

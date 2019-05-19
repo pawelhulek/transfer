@@ -80,7 +80,7 @@ class ApplicationTest {
         postTransfer();
         sleep(Duration.ofSeconds(2).toMillis());
         String json = getData("http://localhost:4567/accounts/1");
-        var expectedJson = "{\"number\":\"1\",\"currency\":\"PLN\",\"transfers\":[{\"from\":\"1\",\"to\":\"2\",\"amount\":1.01,\"currency\":\"PLN\",\"transactionStatus\":\"STAGING\"}]}";
+        var expectedJson = "{\"number\":\"1\",\"currency\":\"PLN\",\"transfers\":[{\"from\":\"1\",\"to\":\"2\",\"amount\":1.01,\"currency\":\"PLN\",\"transactionStatus\":\"COMPLETED\"}]}";
         assertEquals(expectedJson, json);
 
     }

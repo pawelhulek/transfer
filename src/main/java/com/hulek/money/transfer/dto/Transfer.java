@@ -26,6 +26,10 @@ public final class Transfer {
         return new Transfer(from, to, amount, currency, TransactionStatus.STAGING);
     }
 
+    public Transfer completed() {
+        return new Transfer(from, to, amount, currency, TransactionStatus.COMPLETED);
+    }
+
     public String getFrom() {
         return from;
     }
@@ -74,4 +78,5 @@ public final class Transfer {
     public int hashCode() {
         return Objects.hash(from, to, amount, transactionStatus, currency);
     }
+
 }
