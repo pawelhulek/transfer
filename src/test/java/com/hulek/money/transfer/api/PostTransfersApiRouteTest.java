@@ -3,7 +3,7 @@ package com.hulek.money.transfer.api;
 import com.google.gson.Gson;
 import com.hulek.money.transfer.dto.Transfer;
 import com.hulek.money.transfer.dto.Unique;
-import com.hulek.money.transfer.repository.TransfersRepository;
+import com.hulek.money.transfer.repository.Repository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -23,14 +23,14 @@ class PostTransfersApiRouteTest {
     private Gson gson;
     ArgumentCaptor<Unique> captor = ArgumentCaptor.forClass(Unique.class);
     ArgumentCaptor<String> headerCaptor = ArgumentCaptor.forClass(String.class);
-    private TransfersRepository repository;
+    private Repository<Transfer> repository;
 
     @BeforeEach
     void beforeEach() {
         requestMock = mock(Request.class);
         responseMock = mock(Response.class);
         gson = new Gson();
-        repository = mock(TransfersRepository.class);
+        repository = mock(Repository.class);
         postRoute = new PostRoute(gson, repository, Transfer.class, "transfers");
 
     }
