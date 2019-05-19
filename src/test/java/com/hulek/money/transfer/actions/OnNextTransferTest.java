@@ -28,12 +28,12 @@ class OnNextTransferTest {
     void updateTransfer() {
         onNextTransfer.call(new Unique<>("ss", transfer()));
         verify(transferRepository).save(uniqueArgumentCaptor.capture());
-        assertEquals(new Unique<>("ss", transfer().complete()), uniqueArgumentCaptor.getValue());
+        assertEquals(new Unique<>("ss", transfer().staging()), uniqueArgumentCaptor.getValue());
     }
 
     @Test
     void dontUpdateCompletedTransfer() {
-        onNextTransfer.call(new Unique<>("ss", transfer().complete()));
+        onNextTransfer.call(new Unique<>("ss", transfer().staging()));
         verifyZeroInteractions(transferRepository);
     }
 

@@ -16,7 +16,7 @@ public class OnNextCompletedTransfer implements Action1<Unique<Transfer>> {
 
     @Override
     public void call(Unique<Transfer> transferUnique) {
-        if (transferUnique.getValue().getTransactionStatus() == TransactionStatus.COMPLETED) {
+        if (transferUnique.getValue().getTransactionStatus() == TransactionStatus.STAGING) {
             Account fromAccount = accountRepository.getByUniqueId(transferUnique.getValue().getFrom());
             accountRepository.save(new Unique<>(fromAccount.getNumber(), fromAccount.withTransfer(transferUnique.getValue())));
             Account toccount = accountRepository.getByUniqueId(transferUnique.getValue().getTo());

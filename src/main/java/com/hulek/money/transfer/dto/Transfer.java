@@ -11,7 +11,7 @@ public final class Transfer {
     private final TransactionStatus transactionStatus;
 
     public Transfer(String from, String to, BigDecimal amount, String currency) {
-        this(from, to, amount, currency, TransactionStatus.STAGING);
+        this(from, to, amount, currency, null);
     }
 
     private Transfer(String from, String to, BigDecimal amount, String currency, TransactionStatus transactionStatus) {
@@ -22,8 +22,8 @@ public final class Transfer {
         this.transactionStatus = transactionStatus;
     }
 
-    public Transfer complete() {
-        return new Transfer(from, to, amount, currency, TransactionStatus.COMPLETED);
+    public Transfer staging() {
+        return new Transfer(from, to, amount, currency, TransactionStatus.STAGING);
     }
 
     public String getFrom() {

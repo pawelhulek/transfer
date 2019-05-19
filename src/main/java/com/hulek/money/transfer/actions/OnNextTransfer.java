@@ -20,7 +20,7 @@ public class OnNextTransfer implements Action1<Unique<Transfer>> {
         if (transferUnique.getValue().getTransactionStatus() == null) {
             //normalize currency
             someBlockingOperation();
-            var transfer = transferUnique.getValue().complete();
+            var transfer = transferUnique.getValue().staging();
             var completedTransfer = new Unique<>(transferUnique.getId(), transfer);
             repository.save(completedTransfer);
         }

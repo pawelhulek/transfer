@@ -19,35 +19,43 @@ class OnNextCompletedTransferTest {
 
     @Test
     void saveNewAccount() {
-        onNextCompletedTransfer.call(new Unique<>("a", transfer().complete()));
-        verify(accountRepository).save(any());
+        when(accountRepository.getByUniqueId("1")).thenReturn(new Account("1", "PLN", emptyList()));
+        when(accountRepository.getByUniqueId("2")).thenReturn(new Account("2", "PLN", emptyList()));
+        onNextCompletedTransfer.call(new Unique<>("a", transfer().staging()));
+        verify(accountRepository, atLeastOnce()).save(any());
     }
 
     @Test
-    void dontSaveStaging() {
+    void dontSaveNotStaged() {
+        when(accountRepository.getByUniqueId("1")).thenReturn(new Account("1", "PLN", emptyList()));
+        when(accountRepository.getByUniqueId("2")).thenReturn(new Account("2", "PLN", emptyList()));
         onNextCompletedTransfer.call(new Unique<>("a", transfer()));
         verifyZeroInteractions(accountRepository);
     }
 
     @Test
     void findFirstAccount() {
-        onNextCompletedTransfer.call(new Unique<>("a", transfer()));
+        when(accountRepository.getByUniqueId("1")).thenReturn(new Account("1", "PLN", emptyList()));
+        when(accountRepository.getByUniqueId("2")).thenReturn(new Account("2", "PLN", emptyList()));
+        onNextCompletedTransfer.call(new Unique<>("a", transfer().staging()));
         verify(accountRepository).getByUniqueId("1");
     }
 
     @Test
     void saveFirstAccountWithTransaction() {
         when(accountRepository.getByUniqueId("1")).thenReturn(new Account("1", "PLN", emptyList()));
-        onNextCompletedTransfer.call(new Unique<>("a", transfer().complete()));
-        verify(accountRepository).save(new Unique<>("1", new Account("1", "PLN", List.of(transfer().complete()))));
+        when(accountRepository.getByUniqueId("2")).thenReturn(new Account("2", "PLN", emptyList()));
+
+        onNextCompletedTransfer.call(new Unique<>("a", transfer().staging()));
+        verify(accountRepository).save(new Unique<>("1", new Account("1", "PLN", List.of(transfer().staging()))));
     }
 
     @Test
     void saveSecondAccountWithTransaction() {
         when(accountRepository.getByUniqueId("1")).thenReturn(new Account("1", "PLN", emptyList()));
         when(accountRepository.getByUniqueId("2")).thenReturn(new Account("2", "PLN", emptyList()));
-        onNextCompletedTransfer.call(new Unique<>("a", transfer().complete()));
-        verify(accountRepository).save(new Unique<>("2", new Account("2", "PLN", List.of(transfer().complete()))));
+        onNextCompletedTransfer.call(new Unique<>("a", transfer().staging()));
+        verify(accountRepository).save(new Unique<>("2", new Account("2", "PLN", List.of(transfer().staging()))));
     }
 
     private Transfer transfer() {

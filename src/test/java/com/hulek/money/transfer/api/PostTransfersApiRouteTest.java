@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class PostTransfersApiRouteTest {
-    public static final String SOME_TRANSFER_JSON_REQUEST = "{\"from\":\"2ds\",\"to\":\"avs\",\"amount\":2.21,\"currency\":\"USD\",\"transactionStatus\":\"STAGING\"}";
+    public static final String SOME_TRANSFER_JSON_REQUEST = "{\"from\":\"2ds\",\"to\":\"avs\",\"amount\":2.21,\"currency\":\"USD\"}";
     private PostRoute postRoute;
     private Request requestMock;
     private Response responseMock;
