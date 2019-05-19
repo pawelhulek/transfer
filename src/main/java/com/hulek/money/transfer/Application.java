@@ -15,6 +15,10 @@ public class Application {
     }
 
     public static void main(String... args) {
+        startApplication(args);
+    }
+
+    private static void startApplication(String[] args) {
         Configuration configuration = new Configuration();
         Repository<Account> accountsRepository = configuration.accountsRepository();
         configuration.application(configuration.transfersRepository(accountsRepository), accountsRepository).start();

@@ -21,22 +21,25 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ApplicationTest {
-
     @BeforeEach
     void startup() {
         Application.main();
+        Spark.awaitInitialization();
     }
 
     @AfterEach
     void stop() {
         Spark.stop();
+        Spark.awaitStop();
     }
 
     @Test
     void postNewTransfer() throws IOException, InterruptedException {
+
         HttpResponse<Stream<String>> respone = postTransfer();
         assertEquals(SC_CREATED, respone.statusCode());
         assertTrue(respone.headers().firstValue("Location").isPresent());
+
     }
 
     private HttpResponse<Stream<String>> postTransfer() throws IOException, InterruptedException {
@@ -57,6 +60,7 @@ class ApplicationTest {
 
     @Test
     void getAccountDetails() throws IOException, InterruptedException {
+
         String json = getData("http://localhost:4567/accounts/1");
         var expectedJson = "{\"number\":\"1\",\"currency\":\"PLN\",\"transfers\":[]}";
         assertEquals(expectedJson, json);
@@ -72,6 +76,7 @@ class ApplicationTest {
 
     @Test
     void executeTransferOnAccounts() throws IOException, InterruptedException {
+
         postTransfer();
         sleep(Duration.ofSeconds(2).toMillis());
         String json = getData("http://localhost:4567/accounts/1");
