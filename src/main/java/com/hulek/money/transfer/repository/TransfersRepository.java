@@ -5,4 +5,6 @@ import com.hulek.money.transfer.dto.Unique;
 
 public interface TransfersRepository {
     void save(Unique<Transfer> transfer);
+
+    Transfer getByUniqueId(String id);
 }

@@ -2,6 +2,7 @@ package com.hulek.money.transfer;
 
 import com.google.gson.Gson;
 import com.hulek.money.transfer.actions.OnNextTransfer;
+import com.hulek.money.transfer.api.GetTransfersRoute;
 import com.hulek.money.transfer.api.PostTransfersRoute;
 import com.hulek.money.transfer.api.Transfers;
 import com.hulek.money.transfer.dto.Transfer;
@@ -22,16 +23,22 @@ import java.util.concurrent.SubmissionPublisher;
 
 public class Configuration {
 
+    private TransfersRepository transfersRepository = transfersRepository();
+
     public Application application() {
         return new Application(transfersAPI());
     }
 
     private Transfers transfersAPI() {
-        return new Transfers(postTransfersRoute());
+        return new Transfers(postTransfersRoute(), getTransfersRoute());
+    }
+
+    private Route getTransfersRoute() {
+        return new GetTransfersRoute(gson(), transfersRepository);
     }
 
     private Route postTransfersRoute() {
-        return new PostTransfersRoute(gson(), transfersRepository());
+        return new PostTransfersRoute(gson(), transfersRepository);
     }
 
     private TransfersRepository transfersRepository() {

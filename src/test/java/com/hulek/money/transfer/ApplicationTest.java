@@ -8,6 +8,8 @@ import spark.Spark;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
+import java.net.http.HttpResponse;
+import java.util.stream.Stream;
 
 import static java.net.http.HttpRequest.BodyPublishers;
 import static java.net.http.HttpRequest.newBuilder;
@@ -19,24 +21,40 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class ApplicationTest {
 
     @BeforeEach
-    public void startup() {
+    void startup() {
         Application.main();
     }
 
     @AfterEach
-    public void stop() {
+    void stop() {
         Spark.stop();
     }
 
     @Test
-    public void postNewTransfer() throws IOException, InterruptedException {
+    void postNewTransfer() throws IOException, InterruptedException {
+        HttpResponse<Stream<String>> respone = postTransfer();
+        assertEquals(SC_CREATED, respone.statusCode());
+        assertTrue(respone.headers().firstValue("Location").isPresent());
+    }
+
+    private HttpResponse<Stream<String>> postTransfer() throws IOException, InterruptedException {
         var httpClient = HttpClient.newHttpClient();
         var httpRequest = newBuilder(URI.create("http://localhost:4567/transfers"))
                 .POST(BodyPublishers.ofString("{\"from\":\"1\",\"to\":\"2\",\"amount\":1.01,\"currency\":\"PLN\"}"))
                 .build();
-        var respone = httpClient.send(httpRequest, BodyHandlers.ofLines());
-        assertEquals(SC_CREATED, respone.statusCode());
-        assertTrue(respone.headers().firstValue("Location").isPresent());
+        return httpClient.send(httpRequest, BodyHandlers.ofLines());
+    }
+
+    @Test
+    void getTransfer() throws IOException, InterruptedException {
+        var response = postTransfer();
+        var locationURI = response.headers().firstValue("Location").get();
+        var httpRequest = newBuilder(URI.create("http://localhost:4567" + locationURI))
+                .GET()
+                .build();
+        HttpResponse<Stream<String>> getResponse = HttpClient.newHttpClient().send(httpRequest, BodyHandlers.ofLines());
+        String json = getResponse.body().reduce((l, r) -> l + r).get();
+        assertEquals("{\"from\":\"1\",\"to\":\"2\",\"amount\":1.01,\"currency\":\"PLN\"}", json);
     }
 
 }

@@ -20,4 +20,9 @@ public class TransfersCacheRepository implements TransfersRepository {
         cacheMap.put(transfer.getId(), transfer.getValue());
         transferPublisher.submit(transfer);
     }
+
+    @Override
+    public Transfer getByUniqueId(String id) {
+        return cacheMap.get(id);
+    }
 }
