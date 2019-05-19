@@ -32,4 +32,12 @@ public final class Unique<T> {
     public int hashCode() {
         return Objects.hash(id, value);
     }
+
+    @Override
+    public String toString() {
+        return "Unique{" +
+                "id='" + id + '\'' +
+                ", value=" + value +
+                '}';
+    }
 }

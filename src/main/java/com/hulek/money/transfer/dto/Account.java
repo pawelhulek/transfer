@@ -2,6 +2,8 @@ package com.hulek.money.transfer.dto;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public final class Account {
     private final String number;
@@ -11,7 +13,7 @@ public final class Account {
     public Account(String number, String currency, List<Transfer> transfers) {
         this.number = number;
         this.currency = currency;
-        this.transfers = transfers;
+        this.transfers = List.copyOf(transfers);
     }
 
     public String getNumber() {
@@ -22,9 +24,12 @@ public final class Account {
         return currency;
     }
 
-
     public List<Transfer> getTransfers() {
         return transfers;
+    }
+
+    public Account withTransfer(Transfer transfer) {
+        return new Account(number, currency, Stream.concat(transfers.stream(), Stream.of(transfer)).collect(Collectors.toUnmodifiableList()));
     }
 
     @Override
@@ -35,6 +40,15 @@ public final class Account {
         return Objects.equals(number, account.number) &&
                 Objects.equals(currency, account.currency) &&
                 Objects.equals(transfers, account.transfers);
+    }
+
+    @Override
+    public String toString() {
+        return "Account{" +
+                "number='" + number + '\'' +
+                ", currency='" + currency + '\'' +
+                ", transfers=" + transfers +
+                '}';
     }
 
     @Override

@@ -9,13 +9,16 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.stream.Stream;
 
+import static java.lang.Thread.sleep;
 import static java.net.http.HttpRequest.BodyPublishers;
 import static java.net.http.HttpRequest.newBuilder;
 import static java.net.http.HttpResponse.BodyHandlers;
 import static javax.servlet.http.HttpServletResponse.SC_CREATED;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ApplicationTest {
 
@@ -70,10 +73,10 @@ class ApplicationTest {
     @Test
     void executeTransferOnAccounts() throws IOException, InterruptedException {
         postTransfer();
+        sleep(Duration.ofSeconds(2).toMillis());
         String json = getData("http://localhost:4567/accounts/1");
-        var expectedJson = "{\"number\":\"1\",\"currency\":\"PLN\",\"transfers\":[]}";
-        System.out.println(json);
-        assertNotEquals(expectedJson, json);
+        var expectedJson = "{\"number\":\"1\",\"currency\":\"PLN\",\"transfers\":[{\"from\":\"1\",\"to\":\"2\",\"amount\":1.01,\"currency\":\"PLN\",\"transactionStatus\":\"COMPLETED\"}]}";
+        assertEquals(expectedJson, json);
 
     }
 }

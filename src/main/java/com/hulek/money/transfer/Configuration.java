@@ -1,6 +1,7 @@
 package com.hulek.money.transfer;
 
 import com.google.gson.Gson;
+import com.hulek.money.transfer.actions.OnNextCompletedTransfer;
 import com.hulek.money.transfer.actions.OnNextTransfer;
 import com.hulek.money.transfer.api.AccountsApi;
 import com.hulek.money.transfer.api.GetRoute;
@@ -25,10 +26,7 @@ import java.util.concurrent.SubmissionPublisher;
 
 public class Configuration {
 
-    private Repository<Transfer> transfersRepository = transfersRepository();
-    private Repository<Account> accountsRepository = accountsRepository();
-
-    private Repository<Account> accountsRepository() {
+    public Repository<Account> accountsRepository() {
         return new CacheRepository<>(accountsCache(), accountsPublisher());
     }
 
@@ -45,46 +43,58 @@ public class Configuration {
     }
 
 
-    public Application application() {
-        return new Application(transfersAPI(), accountsApi());
+    public Application application(Repository<Transfer> transfersRepository, Repository<Account> accountsRepository) {
+        return new Application(transfersAPI(transfersRepository), accountsApi(accountsRepository));
     }
 
-    private AccountsApi accountsApi() {
-        return new AccountsApi(accountsGetRoute());
+    private AccountsApi accountsApi(Repository<Account> accountsRepository) {
+        return new AccountsApi(accountsGetRoute(accountsRepository));
     }
 
-    private Route accountsGetRoute() {
+    private Route accountsGetRoute(Repository<Account> accountsRepository) {
         return new GetRoute<Account>(gson(), accountsRepository);
     }
 
-    private TransfersApi transfersAPI() {
-        return new TransfersApi(postTransfersRoute(), getTransfersRoute());
+    private TransfersApi transfersAPI(Repository<Transfer> transfersRepository) {
+        return new TransfersApi(postTransfersRoute(transfersRepository), getTransfersRoute(transfersRepository));
     }
 
-    private Route getTransfersRoute() {
+    private Route getTransfersRoute(Repository<Transfer> transfersRepository) {
         return new GetRoute<>(gson(), transfersRepository);
     }
 
-    private Route postTransfersRoute() {
+    private Route postTransfersRoute(Repository<Transfer> transfersRepository) {
         return new PostRoute<>(gson(), transfersRepository, Transfer.class, "transfers");
     }
 
-    private CacheRepository<Transfer> transfersRepository() {
-        return new CacheRepository<>(transfersCache(), transfersPublisher());
+    public CacheRepository<Transfer> transfersRepository(Repository<Account> accountRepository) {
+        return new CacheRepository<>(transfersCache(), tr -> transfersPublisher(accountRepository, tr));
     }
 
-    private SubmissionPublisher<Unique<Transfer>> transfersPublisher() {
+    private SubmissionPublisher<Unique<Transfer>> transfersPublisher(Repository<Account> accountRepository, Repository<Transfer> transfersRepository) {
         var publisher = new SubmissionPublisher<Unique<Transfer>>();
-        publisher.subscribe(transferSubscriber());
+        publisher.subscribe(transferSubscriber(transfersRepository));
+        publisher.subscribe(compltedTransferSubscriber(accountRepository));
         return publisher;
     }
 
-    private Flow.Subscriber<Unique<Transfer>> transferSubscriber() {
-        Subscriber<Unique<Transfer>> rxSubscriber = Subscribers.create(actionTransfer());
+    private Flow.Subscriber<Unique<Transfer>> compltedTransferSubscriber(Repository<Account> accountRepository) {
+        Subscriber<Unique<Transfer>> rxSubscriber = Subscribers.create(actionCompletedTransfer(accountRepository));
         return FlowAdapters.toFlowSubscriber(RxReactiveStreams.toSubscriber(rxSubscriber));
     }
 
-    private Action1<Unique<Transfer>> actionTransfer() {
+    private Action1<Unique<Transfer>> actionCompletedTransfer(Repository<Account> accountRepository) {
+        return new OnNextCompletedTransfer(accountRepository);
+    }
+
+    private Flow.Subscriber<Unique<Transfer>> transferSubscriber(Repository<Transfer> transfersRepository) {
+
+        Subscriber<Unique<Transfer>> rxSubscriber = Subscribers.create(actionTransfer(transfersRepository));
+
+        return FlowAdapters.toFlowSubscriber(RxReactiveStreams.toSubscriber(rxSubscriber));
+    }
+
+    private Action1<Unique<Transfer>> actionTransfer(Repository<Transfer> transfersRepository) {
         return new OnNextTransfer(transfersRepository);
     }
 
@@ -100,7 +110,7 @@ public class Configuration {
         return new Gson();
     }
 
-    public void initializeData() {
+    public void initializeData(Repository<Account> accountsRepository) {
         new Preloader(accountsRepository).preLoadData();
     }
 }
