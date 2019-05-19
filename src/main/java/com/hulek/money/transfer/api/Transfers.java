@@ -14,8 +14,6 @@ public class Transfers {
 
     public void api() {
         Spark.path("/transfers", () -> {
-            Spark.before("",
-                    (request, response) -> System.out.println(request.url()));
             Spark.get("/:id", getTransfersRoute);
             Spark.post("", postTransfersRoute);
         });

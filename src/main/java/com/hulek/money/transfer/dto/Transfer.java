@@ -8,12 +8,22 @@ public final class Transfer {
     private final String to;
     private final BigDecimal amount;
     private final String currency;
+    private final TransactionStatus transactionStatus;
 
     public Transfer(String from, String to, BigDecimal amount, String currency) {
+        this(from, to, amount, currency, TransactionStatus.STAGING);
+    }
+
+    private Transfer(String from, String to, BigDecimal amount, String currency, TransactionStatus transactionStatus) {
         this.from = from;
         this.to = to;
         this.amount = amount;
         this.currency = currency;
+        this.transactionStatus = transactionStatus;
+    }
+
+    public Transfer complete() {
+        return new Transfer(from, to, amount, currency, TransactionStatus.COMPLETED);
     }
 
     public String getFrom() {
@@ -41,11 +51,23 @@ public final class Transfer {
                 Objects.equals(from, transfer.from) &&
                         Objects.equals(to, transfer.to) &&
                         Objects.equals(amount, transfer.amount) &&
+                        Objects.equals(transactionStatus, transfer.transactionStatus) &&
                         Objects.equals(currency, transfer.currency);
     }
 
     @Override
+    public String toString() {
+        return "Transfer{" +
+                "from='" + from + '\'' +
+                ", to='" + to + '\'' +
+                ", amount=" + amount +
+                ", currency='" + currency + '\'' +
+                ", transactionStatus=" + transactionStatus +
+                '}';
+    }
+
+    @Override
     public int hashCode() {
-        return Objects.hash(from, to, amount, currency);
+        return Objects.hash(from, to, amount, transactionStatus, currency);
     }
 }

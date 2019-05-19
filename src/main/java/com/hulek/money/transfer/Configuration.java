@@ -57,7 +57,7 @@ public class Configuration {
     }
 
     private Action1<Unique<Transfer>> actionTransfer() {
-        return new OnNextTransfer();
+        return new OnNextTransfer(transfersRepository);
     }
 
     private Map<String, Transfer> transfersCache() {
