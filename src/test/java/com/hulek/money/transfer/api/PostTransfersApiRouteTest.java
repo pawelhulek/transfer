@@ -17,12 +17,12 @@ import static org.mockito.Mockito.*;
 
 class PostTransfersApiRouteTest {
     public static final String SOME_TRANSFER_JSON_REQUEST = "{\"from\":\"2ds\",\"to\":\"avs\",\"amount\":2.21,\"currency\":\"USD\"}";
+    ArgumentCaptor<Unique> captor = ArgumentCaptor.forClass(Unique.class);
+    ArgumentCaptor<String> headerCaptor = ArgumentCaptor.forClass(String.class);
     private PostRoute postRoute;
     private Request requestMock;
     private Response responseMock;
     private Gson gson;
-    ArgumentCaptor<Unique> captor = ArgumentCaptor.forClass(Unique.class);
-    ArgumentCaptor<String> headerCaptor = ArgumentCaptor.forClass(String.class);
     private Repository<Transfer> repository;
 
     @BeforeEach
